@@ -15,8 +15,8 @@
   const STORAGE_KEY_HISTORY = 'portfolio_submissions_history';
   const STORAGE_KEY_DRAFT = 'portfolio_form_draft';
 
-  // Default / Example Google Apps Script URL (User can customize anytime)
-  const DEFAULT_SCRIPT_URL = '';
+  // Default Google Apps Script URL (Deployed to user's Google Sheet)
+  const DEFAULT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyhmon-zEpPQQh2zNL34b3WEQkG6_mEalmB3dK2QMwZxJ5yAniWRCgr4te2ehB24wwwAg/exec';
 
   // State
   let currentScriptUrl = localStorage.getItem(STORAGE_KEY_URL) || DEFAULT_SCRIPT_URL;
@@ -306,12 +306,12 @@
   function updateStatusBadge() {
     const dot = dbStatusBadge.querySelector('.status-dot');
     if (currentScriptUrl && currentScriptUrl.startsWith('https://script.google.com')) {
-      dot.className = 'status-dot custom';
-      dbStatusText.textContent = 'Custom Webhook Active';
-      dbStatusBadge.title = 'Connected to: ' + currentScriptUrl;
+      dot.className = 'status-dot online';
+      dbStatusText.textContent = 'Google Sheets Connected';
+      dbStatusBadge.title = 'Connected to Sheet: 1ZBKFAWajAClVhBj17anFys4ACJGHy9NJBof75dew_iQ';
     } else {
       dot.className = 'status-dot online';
-      dbStatusText.textContent = 'Google Sheet Ready (Demo/Setup)';
+      dbStatusText.textContent = 'Demo Mode (Session Log)';
       dbStatusBadge.title = 'Click to configure your Google Apps Script URL';
     }
   }
