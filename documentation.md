@@ -266,3 +266,44 @@ node -e "const http=require('http'),fs=require('fs'),path=require('path');const 
    Free Google accounts have a limit of **20,000 URL Fetch calls/day** and **100 email notifications/day**. For standard portfolio contact volumes, this easily covers production demands.
 4. **Data Privacy:**  
    Only the spreadsheet owner and collaborators with explicit Google Drive sharing permissions can view the accumulated contact records in the Google Sheet.
+
+---
+
+## 9. Cinematic UX & Architectural Features (Michael Gatt Mechanics)
+
+The portfolio incorporates award-winning interaction design patterns inspired by **Michael Gatt** (`michaelgatt.com`):
+
+### 9.1 Web Audio API Haptic Soundscape
+- **Zero Audio Assets**: Built purely with native browser `AudioContext` and frequency synthesis.
+- **Opt-In / Muted by Default**: Fully complies with browser autoplay restrictions; toggleable via the navbar pill button (`#audioToggleBtn`) or the `M` key.
+- **Tactile Sound Map**:
+  - `playClick()`: 720Hz sine blip (35ms) for all interactive buttons and navigation links.
+  - `playInputFocus()`: 480Hz triangle tone (25ms) when focusing input fields.
+  - `playSuccessChord()`: Ascending 4-frequency arpeggio (`C5, E5, G5, C6`) on verified Google Sheet row insertion.
+  - `playError()`: Dissonant dual-tone alert (220Hz $\rightarrow$ 180Hz) on form validation errors.
+  - `playDrawerOpen()` / `playDrawerClose()`: Fluid slide frequency sweeps.
+
+### 9.2 2.5D Architecture Canvas Topology
+- Toggleable in the **Selected Works** section via `[ Grid View ]` vs. `[ 2.5D Topology Map ]`.
+- Interactive spatial node graph rendering 6 interconnected systems:
+  - *EdgeMesh Gateway* (Anycast PoP)
+  - *Client Browser UI* (Vectr SPA)
+  - *Portfolio Connect* (Google Apps Script Webhook)
+  - *Google Sheets DB* (Row Persist)
+  - *AetherOS Core* (Raft Consensus)
+  - *QuantumLedger* (SHA-256 Merkle WASM)
+- Features animated glowing packet streams, mouse drag-to-pan physics, node hover glow, and click-node-to-inspect.
+
+### 9.3 Slide-out Project Deep-Dive Inspector Drawer
+- A persistent glassmorphism side drawer (`#projectDrawer`) inspired by Michael Gatt's persistent media layer.
+- Accessible from both the project cards ("Inspect Architecture") and the 2.5D node map.
+- Features tabbed technical inspection:
+  - **01 // Architecture**: ASCII data-flow diagrams, system overview, and core architectural metrics.
+  - **02 // Live Telemetry & Ping**: Real-time probe test button measuring round-trip latency against the live Google Apps Script endpoint (or simulated edge backplanes) with animated progress gauges.
+  - **03 // Solved Challenges**: Deep dives on engineering hurdles (CORS preflight workarounds, concurrency locks, WebAssembly hashing, and split-brain prevention).
+
+### 9.4 Keyboard Shortcuts & Accessibility
+- `Escape`: Instantly dismisses active drawers, configuration settings, or receipt modals.
+- `M`: Toggles the synthesized haptic soundscape on/off from anywhere on the page.
+- `prefers-reduced-motion`: Automatically disables canvas particle animations and uses instant transitions.
+
