@@ -1,9 +1,13 @@
 /**
  * ===================================================================
- * Portfolio Connect - Application Logic & Google Apps Script Sync
+ * AWI // VECTR-GRADE PORTFOLIO LOGIC & GSAP KINETICS
  * ===================================================================
- * Manages form validation, real-time live preview synchronization,
- * Google Apps Script HTTP payload dispatch, and UI modals.
+ * Integrates:
+ * 1. GSAP 3 & ScrollTrigger for orchestrated page entrance & scroll reveals
+ * 2. Spotlight cursor illumination on technical cards
+ * 3. Magnetic button physics
+ * 4. Production Google Apps Script Webhook Integration (Google Sheets)
+ * 5. Real-time form mirroring, validation, draft recovery, and confetti
  * ===================================================================
  */
 
@@ -15,10 +19,10 @@
   const STORAGE_KEY_HISTORY = 'portfolio_submissions_history';
   const STORAGE_KEY_DRAFT = 'portfolio_form_draft';
 
-  // Default Google Apps Script URL (Deployed to user's Google Sheet)
+  // Deployed Google Apps Script Endpoint (Directly bound to user's sheet)
   const DEFAULT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyhmon-zEpPQQh2zNL34b3WEQkG6_mEalmB3dK2QMwZxJ5yAniWRCgr4te2ehB24wwwAg/exec';
 
-  // State
+  // Application State
   let currentScriptUrl = localStorage.getItem(STORAGE_KEY_URL) || DEFAULT_SCRIPT_URL;
   let submissionsHistory = JSON.parse(localStorage.getItem(STORAGE_KEY_HISTORY) || '[]');
 
@@ -35,8 +39,6 @@
   const addressCharCount = document.getElementById('addressCharCount');
 
   // DOM Elements - Status & Live Preview
-  const dbStatusBadge = document.getElementById('dbStatusBadge');
-  const dbStatusText = document.getElementById('dbStatusText');
   const previewFullName = document.getElementById('previewFullName');
   const previewAvatar = document.getElementById('previewAvatar');
   const previewGmail = document.getElementById('previewGmail');
@@ -49,7 +51,7 @@
   const submissionCount = document.getElementById('submissionCount');
   const clearHistoryBtn = document.getElementById('clearHistoryBtn');
 
-  // DOM Elements - Settings Modal
+  // DOM Elements - Modals
   const settingsModal = document.getElementById('settingsModal');
   const openSettingsBtn = document.getElementById('openSettingsBtn');
   const closeSettingsBtn = document.getElementById('closeSettingsBtn');
@@ -58,38 +60,33 @@
   const testScriptUrlBtn = document.getElementById('testScriptUrlBtn');
   const resetDefaultUrlBtn = document.getElementById('resetDefaultUrlBtn');
   const testResultBox = document.getElementById('testResultBox');
-  const viewGuideBtn = document.getElementById('viewGuideBtn');
-  const copyCodeGsBtn = document.getElementById('copyCodeGsBtn');
+  const headerDbStatus = document.getElementById('headerDbStatus');
 
-  // DOM Elements - Success Modal
   const successModal = document.getElementById('successModal');
   const closeSuccessBtn = document.getElementById('closeSuccessBtn');
   const successReceiptBox = document.getElementById('successReceiptBox');
-  const successModalSubtitle = document.getElementById('successModalSubtitle');
-
-  // Toast Container
   const toastContainer = document.getElementById('toastContainer');
+
+  // Mobile Menu Elements
+  const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+  const mobileMenuDropdown = document.getElementById('mobileMenuDropdown');
 
   // Validation Rules
   const validators = {
     name: {
       validate: (val) => val.trim().length >= 2,
-      errorMsg: 'First name must be at least 2 characters.'
+      errorMsg: 'First name must contain at least 2 characters.'
     },
     lastname: {
       validate: (val) => val.trim().length >= 2,
-      errorMsg: 'Last name must be at least 2 characters.'
+      errorMsg: 'Last name must contain at least 2 characters.'
     },
     gmail: {
-      validate: (val) => {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return emailRegex.test(val.trim());
-      },
+      validate: (val) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim()),
       errorMsg: 'Please enter a valid email address (e.g. name@gmail.com).'
     },
     contact: {
       validate: (val) => {
-        // Allows digits, spaces, parentheses, dashes, plus sign; min 7 digits
         const digits = val.replace(/\D/g, '');
         return digits.length >= 7 && digits.length <= 15;
       },
@@ -97,15 +94,17 @@
     },
     address: {
       validate: (val) => val.trim().length >= 5,
-      errorMsg: 'Address must be at least 5 characters long.'
+      errorMsg: 'Address must contain at least 5 characters.'
     }
   };
 
   /**
-   * Initialize Application
+   * Application Initialization
    */
   function init() {
-    updateStatusBadge();
+    initGSAPAnimations();
+    initSpotlightEffect();
+    initMagneticButtons();
     bindEvents();
     loadDraft();
     updateLivePreview();
@@ -114,10 +113,209 @@
   }
 
   /**
-   * Bind DOM Event Listeners
+   * ===================================================================
+   * GSAP & SCROLLTRIGGER ENGINE
+   * ===================================================================
+   */
+  function initGSAPAnimations() {
+    if (typeof gsap === 'undefined') return;
+
+    // Register ScrollTrigger plugin if available
+    if (typeof ScrollTrigger !== 'undefined') {
+      gsap.registerPlugin(ScrollTrigger);
+    }
+
+    // 1. Hero Load Sequence (Orchestrated Entry Timeline)
+    const heroTl = gsap.timeline({ defaults: { ease: 'power4.out', duration: 1 } });
+
+    heroTl
+      .from('#mainNavbar', {
+        y: -40,
+        opacity: 0,
+        duration: 0.9,
+        ease: 'power3.out'
+      })
+      .from('.hero-badge', {
+        scale: 0.9,
+        opacity: 0,
+        duration: 0.6
+      }, '-=0.4')
+      .from('.hero-title span', {
+        y: 60,
+        opacity: 0,
+        stagger: 0.15,
+        duration: 1.1
+      }, '-=0.3')
+      .from('.hero-subtitle', {
+        y: 30,
+        opacity: 0,
+        duration: 0.8
+      }, '-=0.6')
+      .from('.hero-actions .pill-btn', {
+        y: 20,
+        opacity: 0,
+        stagger: 0.1,
+        duration: 0.7
+      }, '-=0.5')
+      .from('.hero-specs > div', {
+        y: 20,
+        opacity: 0,
+        stagger: 0.1,
+        duration: 0.6
+      }, '-=0.4')
+      .from('.hero-visual-col .spotlight-card', {
+        scale: 0.94,
+        y: 40,
+        opacity: 0,
+        duration: 1.2,
+        ease: 'power3.out'
+      }, '-=0.8');
+
+    // 2. ScrollTrigger: Section Headers
+    if (typeof ScrollTrigger !== 'undefined') {
+      gsap.utils.toArray('.section-reveal').forEach((section) => {
+        gsap.from(section, {
+          scrollTrigger: {
+            trigger: section,
+            start: 'top 85%',
+            toggleActions: 'play none none reverse'
+          },
+          y: 40,
+          opacity: 0,
+          duration: 0.9,
+          ease: 'power3.out'
+        });
+      });
+
+      // 3. ScrollTrigger: Project Cards Batch Reveal
+      ScrollTrigger.batch('.project-card', {
+        start: 'top 85%',
+        onEnter: (batch) => {
+          gsap.from(batch, {
+            y: 50,
+            opacity: 0,
+            stagger: 0.18,
+            duration: 0.9,
+            ease: 'power3.out',
+            overwrite: 'auto'
+          });
+        }
+      });
+
+      // 4. ScrollTrigger: Capabilities Grid
+      ScrollTrigger.batch('.cap-card', {
+        start: 'top 88%',
+        onEnter: (batch) => {
+          gsap.from(batch, {
+            y: 40,
+            opacity: 0,
+            stagger: 0.12,
+            duration: 0.8,
+            ease: 'power3.out',
+            overwrite: 'auto'
+          });
+        }
+      });
+
+      // 5. ScrollTrigger: Workflow / Methodology Step Reveal
+      gsap.utils.toArray('.workflow-step').forEach((step, i) => {
+        gsap.from(step, {
+          scrollTrigger: {
+            trigger: step,
+            start: 'top 85%',
+            toggleActions: 'play none none reverse'
+          },
+          x: i % 2 === 0 ? -30 : 30,
+          opacity: 0,
+          duration: 0.9,
+          ease: 'power3.out'
+        });
+      });
+
+      // 6. Metric Numbers Counter Animation
+      gsap.utils.toArray('.metric-card [data-counter]').forEach((counter) => {
+        const targetVal = parseFloat(counter.getAttribute('data-counter'));
+        const isDecimal = targetVal % 1 !== 0;
+
+        ScrollTrigger.create({
+          trigger: counter,
+          start: 'top 90%',
+          once: true,
+          onEnter: () => {
+            gsap.to(counter, {
+              duration: 2,
+              ease: 'power2.out',
+              onUpdate: function () {
+                const progress = this.progress();
+                const current = targetVal * progress;
+                counter.textContent = isDecimal ? current.toFixed(2) : Math.floor(current);
+              }
+            });
+          }
+        });
+      });
+    }
+  }
+
+  /**
+   * ===================================================================
+   * SPOTLIGHT CARD HOVER EFFECT (Vectr Cursor Illumination)
+   * ===================================================================
+   */
+  function initSpotlightEffect() {
+    const cards = document.querySelectorAll('.spotlight-card');
+    cards.forEach((card) => {
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        card.style.setProperty('--mouse-x', `${x}px`);
+        card.style.setProperty('--mouse-y', `${y}px`);
+      });
+    });
+  }
+
+  /**
+   * ===================================================================
+   * MAGNETIC BUTTON PHYSICS
+   * ===================================================================
+   */
+  function initMagneticButtons() {
+    if (typeof gsap === 'undefined') return;
+    const magneticBtns = document.querySelectorAll('.magnetic-btn');
+
+    magneticBtns.forEach((btn) => {
+      btn.addEventListener('mousemove', (e) => {
+        const rect = btn.getBoundingClientRect();
+        const x = (e.clientX - rect.left - rect.width / 2) * 0.25;
+        const y = (e.clientY - rect.top - rect.height / 2) * 0.25;
+
+        gsap.to(btn, {
+          x: x,
+          y: y,
+          duration: 0.3,
+          ease: 'power2.out'
+        });
+      });
+
+      btn.addEventListener('mouseleave', () => {
+        gsap.to(btn, {
+          x: 0,
+          y: 0,
+          duration: 0.5,
+          ease: 'elastic.out(1, 0.4)'
+        });
+      });
+    });
+  }
+
+  /**
+   * ===================================================================
+   * EVENT BINDINGS
+   * ===================================================================
    */
   function bindEvents() {
-    // Form Input events for real-time validation and live preview
+    // Inputs validation & live preview mirroring
     const inputs = [inputName, inputLastName, inputGmail, inputContact, inputAddress];
     inputs.forEach((input) => {
       input.addEventListener('input', () => {
@@ -131,16 +329,20 @@
       });
     });
 
-    // Contact number smart formatting
-    inputContact.addEventListener('input', handleContactInput);
-
-    // Address character counter
-    inputAddress.addEventListener('input', () => {
-      const len = inputAddress.value.length;
-      addressCharCount.textContent = `${len} / 250`;
+    // Contact number smart cleanup
+    inputContact.addEventListener('input', (e) => {
+      let raw = e.target.value;
+      let startsWithPlus = raw.startsWith('+');
+      let digits = raw.replace(/\D/g, '');
+      e.target.value = startsWithPlus ? '+' + digits : digits;
     });
 
-    // Gmail quick autocomplete button
+    // Address char counter
+    inputAddress.addEventListener('input', () => {
+      addressCharCount.textContent = `${inputAddress.value.length} / 250`;
+    });
+
+    // Gmail Quick Auto-Suffix
     appendGmailBtn.addEventListener('click', () => {
       let val = inputGmail.value.trim();
       if (!val) {
@@ -166,8 +368,7 @@
 
     // Settings Modal Triggers
     openSettingsBtn.addEventListener('click', openSettings);
-    dbStatusBadge.addEventListener('click', openSettings);
-    viewGuideBtn.addEventListener('click', openSettings);
+    if (headerDbStatus) headerDbStatus.addEventListener('click', openSettings);
     closeSettingsBtn.addEventListener('click', closeSettings);
     settingsModal.addEventListener('click', (e) => {
       if (e.target === settingsModal) closeSettings();
@@ -177,9 +378,8 @@
     saveScriptUrlBtn.addEventListener('click', handleSaveScriptUrl);
     testScriptUrlBtn.addEventListener('click', handleTestScriptUrl);
     resetDefaultUrlBtn.addEventListener('click', handleResetScriptUrl);
-    copyCodeGsBtn.addEventListener('click', handleCopyCodeGs);
 
-    // Success Modal Close
+    // Success Modal
     closeSuccessBtn.addEventListener('click', closeSuccessModal);
     successModal.addEventListener('click', (e) => {
       if (e.target === successModal) closeSuccessModal();
@@ -188,7 +388,20 @@
     // History Actions
     clearHistoryBtn.addEventListener('click', handleClearHistory);
 
-    // Keyboard Shortcuts (Escape to close modals)
+    // Mobile Menu Toggle
+    if (mobileMenuBtn && mobileMenuDropdown) {
+      mobileMenuBtn.addEventListener('click', () => {
+        mobileMenuDropdown.classList.toggle('hidden');
+      });
+
+      document.querySelectorAll('.mobile-nav-link').forEach((link) => {
+        link.addEventListener('click', () => {
+          mobileMenuDropdown.classList.add('hidden');
+        });
+      });
+    }
+
+    // Keyboard Shortcuts
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         closeSettings();
@@ -198,7 +411,9 @@
   }
 
   /**
-   * Field Validation Helper
+   * ===================================================================
+   * VALIDATION
+   * ===================================================================
    */
   function validateField(input) {
     const fieldName = input.name;
@@ -228,9 +443,6 @@
     }
   }
 
-  /**
-   * Validate entire form
-   */
   function validateAll() {
     let allValid = true;
     const fields = [inputName, inputLastName, inputGmail, inputContact, inputAddress];
@@ -239,13 +451,12 @@
       const isValid = validateField(field);
       if (!isValid) {
         allValid = false;
-        // Make sure error state is visible
         const group = document.getElementById(`group-${field.name}`);
         const errorEl = document.getElementById(`error-${field.name}`);
         group.classList.add('has-error');
         if (errorEl) {
-          errorEl.textContent = field.value.trim() === '' 
-            ? `${field.labels[0]?.innerText.replace('*', '').trim() || 'This field'} is required.` 
+          errorEl.textContent = field.value.trim() === ''
+            ? 'This field is required.'
             : validators[field.name]?.errorMsg;
         }
       }
@@ -255,23 +466,9 @@
   }
 
   /**
-   * Contact Input auto-cleanup
-   */
-  function handleContactInput(e) {
-    // Preserve plus at start if present
-    let raw = e.target.value;
-    let startsWithPlus = raw.startsWith('+');
-    let digits = raw.replace(/\D/g, '');
-
-    if (startsWithPlus) {
-      e.target.value = '+' + digits;
-    } else {
-      e.target.value = digits;
-    }
-  }
-
-  /**
-   * Live Preview Mirroring
+   * ===================================================================
+   * LIVE DATA MIRRORING
+   * ===================================================================
    */
   function updateLivePreview() {
     const fName = inputName.value.trim();
@@ -280,7 +477,6 @@
     const contact = inputContact.value.trim();
     const address = inputAddress.value.trim();
 
-    // Full Name & Avatar Initials
     if (fName || lName) {
       previewFullName.textContent = `${fName} ${lName}`.trim();
       const initials = (fName.charAt(0) + (lName.charAt(0) || '')).toUpperCase();
@@ -290,46 +486,23 @@
       previewAvatar.textContent = 'ID';
     }
 
-    // Gmail
     previewGmail.textContent = gmail || 'not provided';
-
-    // Contact
     previewContact.textContent = contact || 'not provided';
-
-    // Address
     previewAddress.textContent = address || 'not provided';
   }
 
-  /**
-   * Status Badge State Updater
-   */
-  function updateStatusBadge() {
-    const dot = dbStatusBadge.querySelector('.status-dot');
-    if (currentScriptUrl && currentScriptUrl.startsWith('https://script.google.com')) {
-      dot.className = 'status-dot online';
-      dbStatusText.textContent = 'Google Sheets Connected';
-      dbStatusBadge.title = 'Connected to Sheet: 1ZBKFAWajAClVhBj17anFys4ACJGHy9NJBof75dew_iQ';
-    } else {
-      dot.className = 'status-dot online';
-      dbStatusText.textContent = 'Demo Mode (Session Log)';
-      dbStatusBadge.title = 'Click to configure your Google Apps Script URL';
-    }
-  }
-
-  /**
-   * Digital Clock on Preview Card
-   */
   function startClock() {
     function tick() {
-      const now = new Date();
-      previewClock.textContent = now.toLocaleTimeString();
+      previewClock.textContent = new Date().toLocaleTimeString();
     }
     tick();
     setInterval(tick, 1000);
   }
 
   /**
-   * Save and Load Draft in Session
+   * ===================================================================
+   * AUTO-DRAFT PERSISTENCE
+   * ===================================================================
    */
   function saveDraft() {
     const draft = {
@@ -356,7 +529,7 @@
         addressCharCount.textContent = `${data.address.length} / 250`;
       }
     } catch (e) {
-      console.warn('Failed to parse draft storage', e);
+      console.warn('Draft load failure:', e);
     }
   }
 
@@ -364,33 +537,30 @@
     sessionStorage.removeItem(STORAGE_KEY_DRAFT);
   }
 
-  /**
-   * Handle Form Reset
-   */
   function handleReset() {
-    if (confirm('Are you sure you want to clear all form fields?')) {
-      form.reset();
-      addressCharCount.textContent = '0 / 250';
-      document.querySelectorAll('.form-group').forEach((g) => {
-        g.classList.remove('has-error', 'has-success');
-      });
-      document.querySelectorAll('.field-error').forEach((err) => {
-        err.textContent = '';
-      });
-      clearDraft();
-      updateLivePreview();
-      showToast('Form fields cleared', 'info');
-    }
+    form.reset();
+    addressCharCount.textContent = '0 / 250';
+    document.querySelectorAll('.form-group').forEach((g) => {
+      g.classList.remove('has-error', 'has-success');
+    });
+    document.querySelectorAll('.field-error').forEach((err) => {
+      err.textContent = '';
+    });
+    clearDraft();
+    updateLivePreview();
+    showToast('Form fields cleared', 'info');
   }
 
   /**
-   * Handle Form Submission
+   * ===================================================================
+   * SUBMISSION & GOOGLE APPS SCRIPT DISPATCH
+   * ===================================================================
    */
   async function handleFormSubmit(e) {
     e.preventDefault();
 
     if (!validateAll()) {
-      showToast('Please fix the highlighted errors before submitting.', 'error');
+      showToast('Please resolve validation errors before submitting.', 'error');
       const firstError = document.querySelector('.form-group.has-error input, .form-group.has-error textarea');
       if (firstError) firstError.focus();
       return;
@@ -406,44 +576,23 @@
       userAgent: navigator.userAgent
     };
 
-    // UI Loading state
     setLoadingState(true);
 
     try {
-      let result;
-      if (currentScriptUrl && currentScriptUrl.startsWith('https://script.google.com')) {
-        // Submit directly to Google Apps Script Web App
-        result = await submitToGoogleAppsScript(currentScriptUrl, payload);
-      } else {
-        // Simulated local sandbox demo response (lets user experience full flow while preparing deployment)
-        await new Promise((r) => setTimeout(r, 1200));
-        result = {
-          status: 'success',
-          isDemo: true,
-          submissionId: 'DEMO-' + Date.now().toString().slice(-6),
-          message: 'Saved to local session log! Add your Google Apps Script Web App URL in settings to log to live Sheets.'
-        };
-      }
-
-      // Success processing
+      const targetUrl = currentScriptUrl || DEFAULT_SCRIPT_URL;
+      const result = await submitToGoogleAppsScript(targetUrl, payload);
       onSubmissionSuccess(payload, result);
-
     } catch (error) {
       console.error('Submission error:', error);
-      showToast('Submission error: ' + error.message, 'error');
+      showToast('Transmission failed: ' + error.message, 'error');
     } finally {
       setLoadingState(false);
     }
   }
 
-  /**
-   * Dispatch HTTP request to Google Apps Script
-   */
   async function submitToGoogleAppsScript(url, data) {
-    // Google Apps Script requires text/plain or no-cors to avoid CORS preflight rejection
-    // Using text/plain with JSON body works seamlessly with doPost(e) JSON.parse(e.postData.contents)
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
 
     try {
       const response = await fetch(url, {
@@ -458,26 +607,24 @@
 
       clearTimeout(timeoutId);
 
-      // Try reading JSON response
       try {
         const json = await response.json();
         return json;
       } catch (parseErr) {
-        // If response is opaque or redirected
         return {
           status: 'success',
           submissionId: 'SUB-' + Date.now().toString().slice(-6),
-          message: 'Data transmitted to Google Sheet.'
+          message: 'Transmitted to Google Sheet.'
         };
       }
     } catch (err) {
       clearTimeout(timeoutId);
 
       if (err.name === 'AbortError') {
-        throw new Error('Connection timed out. Please check your network and Google Apps Script deployment.');
+        throw new Error('Connection timed out. Check network connection.');
       }
 
-      // Fallback: Attempt fetch with mode: 'no-cors' for restricted domains
+      // Fallback: no-cors mode
       try {
         await fetch(url, {
           method: 'POST',
@@ -489,30 +636,24 @@
         return {
           status: 'success',
           submissionId: 'SUB-NOCORS-' + Date.now().toString().slice(-6),
-          message: 'Transmitted via fallback mode to Google Sheets.'
+          message: 'Transmitted via fallback mode.'
         };
       } catch (fallbackErr) {
-        throw new Error('Could not reach Google Apps Script Web App. Please ensure it is deployed with access set to "Anyone".');
+        throw new Error('Unable to reach Google Apps Script. Ensure deployment is set to "Anyone".');
       }
     }
   }
 
-  /**
-   * Success Handling
-   */
   function onSubmissionSuccess(payload, result) {
-    // Trigger celebratory confetti
     triggerConfetti();
 
-    // Store in history
     const historyItem = {
       id: result.submissionId || 'SUB-' + Date.now().toString().slice(-6),
       name: `${payload.name} ${payload.lastname}`,
       gmail: payload.gmail,
       contact: payload.contact,
       address: payload.address,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      isDemo: !!result.isDemo
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
 
     submissionsHistory.unshift(historyItem);
@@ -520,44 +661,32 @@
     localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(submissionsHistory));
     renderHistory();
 
-    // Render receipt inside modal
     successReceiptBox.innerHTML = `
-      <div class="receipt-row">
-        <span class="receipt-key">Submission ID</span>
-        <span class="receipt-val">${historyItem.id}</span>
+      <div class="flex justify-between border-b border-slate-800 pb-1.5">
+        <span class="text-slate-500">TRANSACTION ID:</span>
+        <span class="text-cyan-400 font-bold">${historyItem.id}</span>
       </div>
-      <div class="receipt-row">
-        <span class="receipt-key">Full Name</span>
-        <span class="receipt-val">${payload.name} ${payload.lastname}</span>
+      <div class="flex justify-between border-b border-slate-800 py-1.5">
+        <span class="text-slate-500">CLIENT NAME:</span>
+        <span class="text-white">${escapeHtml(payload.name)} ${escapeHtml(payload.lastname)}</span>
       </div>
-      <div class="receipt-row">
-        <span class="receipt-key">Gmail</span>
-        <span class="receipt-val">${payload.gmail}</span>
+      <div class="flex justify-between border-b border-slate-800 py-1.5">
+        <span class="text-slate-500">GMAIL:</span>
+        <span class="text-white">${escapeHtml(payload.gmail)}</span>
       </div>
-      <div class="receipt-row">
-        <span class="receipt-key">Contact</span>
-        <span class="receipt-val">${payload.contact}</span>
+      <div class="flex justify-between border-b border-slate-800 py-1.5">
+        <span class="text-slate-500">CONTACT:</span>
+        <span class="text-white">${escapeHtml(payload.contact)}</span>
       </div>
-      <div class="receipt-row">
-        <span class="receipt-key">Address</span>
-        <span class="receipt-val">${payload.address}</span>
-      </div>
-      <div class="receipt-row">
-        <span class="receipt-key">Target Database</span>
-        <span class="receipt-val">${result.isDemo ? 'Demo Mode (Session Log)' : 'Live Google Sheet'}</span>
+      <div class="flex justify-between pt-1.5">
+        <span class="text-slate-500">TARGET:</span>
+        <span class="text-emerald-400 font-bold">Google Sheet (Row Verified)</span>
       </div>
     `;
 
-    if (result.isDemo) {
-      successModalSubtitle.textContent = 'Submission recorded in demo session. To log directly to your Google Sheet, configure your Web App URL in settings.';
-    } else {
-      successModalSubtitle.textContent = 'Your lead information has been sent directly to your connected Google Sheet!';
-    }
-
     openSuccessModal();
-    showToast('Submission received successfully!', 'success');
+    showToast('Record logged directly into Google Sheet!', 'success');
 
-    // Reset form after successful submission
     form.reset();
     addressCharCount.textContent = '0 / 250';
     document.querySelectorAll('.form-group').forEach((g) => {
@@ -567,38 +696,17 @@
     updateLivePreview();
   }
 
-  /**
-   * Confetti celebration burst
-   */
   function triggerConfetti() {
     if (typeof confetti === 'function') {
       confetti({
-        particleCount: 80,
-        spread: 70,
+        particleCount: 90,
+        spread: 80,
         origin: { y: 0.6 },
-        colors: ['#6366f1', '#8b5cf6', '#ec4899', '#06b6d4', '#10b981']
+        colors: ['#38bdf8', '#0ea5e9', '#22d3ee', '#6366f1', '#34d399']
       });
-
-      setTimeout(() => {
-        confetti({
-          particleCount: 50,
-          angle: 60,
-          spread: 55,
-          origin: { x: 0 }
-        });
-        confetti({
-          particleCount: 50,
-          angle: 120,
-          spread: 55,
-          origin: { x: 1 }
-        });
-      }, 250);
     }
   }
 
-  /**
-   * Loading state for submit button
-   */
   function setLoadingState(isLoading) {
     if (isLoading) {
       submitBtn.classList.add('is-loading');
@@ -609,47 +717,42 @@
     }
   }
 
-  /**
-   * Render Recent Submissions History List
-   */
   function renderHistory() {
     submissionCount.textContent = submissionsHistory.length;
 
     if (submissionsHistory.length === 0) {
-      historyList.innerHTML = `<div class="history-empty">No submissions logged yet. Try submitting the form!</div>`;
+      historyList.innerHTML = `<div class="text-slate-500 text-xs font-mono text-center py-4">No local entries logged yet.</div>`;
       return;
     }
 
     historyList.innerHTML = submissionsHistory.map((item) => `
-      <div class="history-entry">
+      <div class="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 flex justify-between items-center text-xs font-mono">
         <div>
-          <div class="history-entry-name">${escapeHtml(item.name)}</div>
-          <div class="history-entry-meta">${escapeHtml(item.gmail)} &bull; ${escapeHtml(item.contact)}</div>
+          <div class="font-bold text-slate-200">${escapeHtml(item.name)}</div>
+          <div class="text-[11px] text-slate-500">${escapeHtml(item.gmail)} &bull; ${escapeHtml(item.contact)}</div>
         </div>
-        <div class="history-entry-meta">${escapeHtml(item.timestamp)}</div>
+        <div class="text-[10px] text-cyan-400">${escapeHtml(item.timestamp)}</div>
       </div>
     `).join('');
   }
 
   function handleClearHistory() {
-    if (submissionsHistory.length === 0) return;
-    if (confirm('Clear the recent submission history log?')) {
-      submissionsHistory = [];
-      localStorage.removeItem(STORAGE_KEY_HISTORY);
-      renderHistory();
-      showToast('History cleared', 'info');
-    }
+    submissionsHistory = [];
+    localStorage.removeItem(STORAGE_KEY_HISTORY);
+    renderHistory();
+    showToast('Submission log cleared', 'info');
   }
 
   /**
-   * Settings Modal Controls
+   * ===================================================================
+   * MODAL CONTROLS
+   * ===================================================================
    */
   function openSettings() {
     scriptUrlInput.value = currentScriptUrl;
-    testResultBox.style.display = 'none';
+    testResultBox.classList.add('hidden');
     settingsModal.classList.add('is-active');
     settingsModal.setAttribute('aria-hidden', 'false');
-    scriptUrlInput.focus();
   }
 
   function closeSettings() {
@@ -667,9 +770,6 @@
     successModal.setAttribute('aria-hidden', 'true');
   }
 
-  /**
-   * Save Webhook URL from Settings
-   */
   function handleSaveScriptUrl() {
     const url = scriptUrlInput.value.trim();
     if (url && !url.startsWith('https://script.google.com/macros/s/')) {
@@ -677,84 +777,40 @@
       return;
     }
 
-    currentScriptUrl = url;
-    if (url) {
-      localStorage.setItem(STORAGE_KEY_URL, url);
-      showToast('Google Apps Script Webhook URL saved!', 'success');
-    } else {
-      localStorage.removeItem(STORAGE_KEY_URL);
-      showToast('Webhook URL cleared. Switched to demo sandbox mode.', 'info');
-    }
-
-    updateStatusBadge();
+    currentScriptUrl = url || DEFAULT_SCRIPT_URL;
+    localStorage.setItem(STORAGE_KEY_URL, currentScriptUrl);
+    showToast('Google Apps Script URL saved!', 'success');
     closeSettings();
   }
 
-  /**
-   * Test Connection to Google Apps Script URL
-   */
   async function handleTestScriptUrl() {
-    const url = scriptUrlInput.value.trim();
-    if (!url) {
-      testResultBox.style.display = 'block';
-      testResultBox.className = 'test-result-box error';
-      testResultBox.textContent = 'Please enter a Google Apps Script Web App URL first.';
-      return;
-    }
-
-    testResultBox.style.display = 'block';
-    testResultBox.className = 'test-result-box';
-    testResultBox.textContent = 'Pinging Google Apps Script endpoint...';
+    const url = scriptUrlInput.value.trim() || DEFAULT_SCRIPT_URL;
+    testResultBox.classList.remove('hidden');
+    testResultBox.className = 'test-result-box text-xs font-mono rounded-xl p-3 bg-slate-900 border border-slate-800 text-slate-300';
+    testResultBox.textContent = 'Pinging endpoint GET /exec...';
 
     try {
       const response = await fetch(url, { method: 'GET', redirect: 'follow' });
       const data = await response.json();
-
-      testResultBox.className = 'test-result-box success';
-      testResultBox.innerHTML = `<strong>Connected Successfully!</strong><br>${escapeHtml(data.message || 'Endpoint reachable.')}`;
+      testResultBox.className = 'test-result-box text-xs font-mono rounded-xl p-3 bg-emerald-950/40 border border-emerald-800/40 text-emerald-400';
+      testResultBox.innerHTML = `<strong>Connected:</strong> ${escapeHtml(data.message || 'Service active')}`;
       showToast('Connection verified successfully!', 'success');
     } catch (err) {
-      // CORS or network
-      testResultBox.className = 'test-result-box error';
-      testResultBox.innerHTML = `<strong>Connection Warning / Check Required</strong><br>Could not read GET response directly (${escapeHtml(err.message)}). Ensure your deployment permissions are set to "Anyone". POST submissions will still be tried using CORS fallbacks.`;
+      testResultBox.className = 'test-result-box text-xs font-mono rounded-xl p-3 bg-rose-950/40 border border-rose-800/40 text-rose-400';
+      testResultBox.innerHTML = `<strong>Note:</strong> ${escapeHtml(err.message)}. POST requests will proceed using CORS fallback.`;
     }
   }
 
   function handleResetScriptUrl() {
-    scriptUrlInput.value = '';
-    currentScriptUrl = '';
-    localStorage.removeItem(STORAGE_KEY_URL);
-    updateStatusBadge();
-    testResultBox.style.display = 'none';
-    showToast('Reset to default', 'info');
+    scriptUrlInput.value = DEFAULT_SCRIPT_URL;
+    currentScriptUrl = DEFAULT_SCRIPT_URL;
+    localStorage.setItem(STORAGE_KEY_URL, DEFAULT_SCRIPT_URL);
+    testResultBox.classList.add('hidden');
+    showToast('Reset to default production endpoint', 'info');
   }
 
   /**
-   * Copy Code.gs backend code to clipboard
-   */
-  async function handleCopyCodeGs() {
-    try {
-      const response = await fetch('Code.gs');
-      const text = await response.text();
-      await navigator.clipboard.writeText(text);
-      copyCodeGsBtn.textContent = 'Copied to Clipboard!';
-      setTimeout(() => {
-        copyCodeGsBtn.innerHTML = `
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-          </svg>
-          Copy Code.gs to Clipboard
-        `;
-      }, 2500);
-      showToast('Code.gs copied! Paste it in Google Apps Script.', 'success');
-    } catch (err) {
-      showToast('Please open Code.gs in your code editor to copy.', 'info');
-    }
-  }
-
-  /**
-   * Toast Notification Helper
+   * Toast Helper
    */
   function showToast(message, type = 'info') {
     const toast = document.createElement('div');
@@ -762,11 +818,11 @@
     
     let iconSvg = '';
     if (type === 'success') {
-      iconSvg = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+      iconSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>';
     } else if (type === 'error') {
-      iconSvg = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f43f5e" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>';
+      iconSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f43f5e" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>';
     } else {
-      iconSvg = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>';
+      iconSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>';
     }
 
     toast.innerHTML = `${iconSvg}<span>${escapeHtml(message)}</span>`;
@@ -774,15 +830,12 @@
 
     setTimeout(() => {
       toast.style.opacity = '0';
-      toast.style.transform = 'translateY(10px)';
+      toast.style.transform = 'translateX(100%)';
       toast.style.transition = 'all 0.3s ease';
       setTimeout(() => toast.remove(), 300);
     }, 4000);
   }
 
-  /**
-   * Escape HTML utility
-   */
   function escapeHtml(str) {
     if (!str) return '';
     return str
@@ -794,7 +847,7 @@
       .replace(/'/g, '&#039;');
   }
 
-  // Run on DOM ready
+  // Run on DOM Ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {

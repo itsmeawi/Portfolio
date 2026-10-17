@@ -47,9 +47,10 @@ sequenceDiagram
 | Layer | Technology | Rationale |
 | :--- | :--- | :--- |
 | **Structure** | Semantic HTML5 | Accessible landmarks, proper label associations, ARIA attributes. |
-| **Styling** | Vanilla CSS3 | Custom design system, CSS custom properties, glassmorphism, responsive grid. |
+| **Styling** | Vanilla CSS3 (Vectr-Grade) | Dark industrial tones (`#06080f`/`#0b0f19`), electric cyan accents, spotlight mouse tracking. |
 | **Logic** | Modern ES6+ JavaScript | Zero external frameworks; fast loading, async fetch, modular functions. |
-| **Animations** | Canvas Confetti (CDN) | Lightweight celebratory micro-interaction upon verified submission. |
+| **Kinetics & Motion** | GSAP 3.12.5 & ScrollTrigger | Cinematic staggered load timeline, batch scroll reveals, magnetic button physics. |
+| **Celebrations** | Canvas Confetti (CDN) | Lightweight celebratory micro-interaction upon verified submission. |
 | **Backend** | Google Apps Script (V8 Engine) | Zero-cost serverless execution, direct access to Google Workspace APIs. |
 | **Database** | Google Sheets | Instant spreadsheet database with real-time rows, zero hosting fees. |
 | **Version Control** | Git & GitHub | Distributed version control on branch `main`. |
