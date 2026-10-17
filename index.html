@@ -34,12 +34,13 @@
     <div class="ambient-orb ambient-orb--violet"></div>
   </div>
 
-  <!-- Top Announcement / System Telemetry Bar -->
+  <!-- Top Announcement / System Telemetry Bar with Dynamic Waveform -->
   <div class="system-telemetry-bar">
     <div class="container flex justify-between items-center text-xs font-mono text-slate-400 py-1.5 px-4">
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-3">
         <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
         <span class="tracking-wide">SYSTEMS OPERATIONAL // VECTR-CALIBER SPECIFICATION</span>
+        <canvas id="telemetryWaveform" width="75" height="14" class="hidden sm:inline-block opacity-80" title="Real-Time Telemetry Waveform"></canvas>
       </div>
       <div class="hidden sm:flex items-center gap-4 text-[11px] text-slate-500">
         <span>LATENCY: &lt;15ms</span>
@@ -75,6 +76,12 @@
 
       <!-- Action Buttons -->
       <div class="flex items-center gap-3">
+        <!-- Haptic Soundscape Toggle (Michael Gatt inspired) -->
+        <button type="button" id="audioToggleBtn" class="pill-btn pill-btn--status" title="Toggle Haptic Soundscape">
+          <span id="audioStatusIcon" class="text-xs">🔇</span>
+          <span class="font-mono text-[11px] text-slate-300" id="audioStatusText">SOUND: OFF</span>
+        </button>
+
         <!-- Database Badge Trigger -->
         <button type="button" id="headerDbStatus" class="pill-btn pill-btn--status hidden sm:inline-flex" title="Google Sheet Database Status">
           <span class="status-pulse-dot"></span>
@@ -172,6 +179,14 @@
             <div>
               <span class="text-slate-500 block text-[10px] tracking-wider">CODE QUALITY</span>
               <span class="text-slate-200 font-bold text-sm">TYPE-SAFE</span>
+            </div>
+          </div>
+
+          <!-- Michael Gatt Inspired: Conversational Editorial Sub-Navigation -->
+          <div class="pt-2 hero-editorial-nav">
+            <div class="editorial-nav-box font-mono text-xs text-slate-400">
+              <span class="text-slate-500">//</span>
+              <span>Inspect the <a href="#projects" class="editorial-link text-cyan-400 font-bold">production systems</a>, verify my <a href="#capabilities" class="editorial-link text-slate-200 font-bold">core stack</a>, or <a href="#contact" class="editorial-link text-emerald-400 font-bold">transmit a lead</a>.</span>
             </div>
           </div>
         </div>
@@ -845,6 +860,16 @@
     </section>
 
   </main>
+
+  <!-- Pre-Footer Editorial Conversational Ribbon (Michael Gatt Inspired) -->
+  <section class="py-10 border-t border-slate-900 bg-slate-950/80 relative z-10 text-center px-4">
+    <div class="container max-w-4xl mx-auto flex flex-col items-center justify-center gap-3">
+      <div class="editorial-nav-box font-mono text-xs sm:text-sm text-slate-400">
+        <span class="text-slate-500">//</span>
+        <span>Ready to collaborate? Review <a href="#projects" class="editorial-link text-cyan-400 font-bold">past builds</a>, explore <a href="#capabilities" class="editorial-link text-slate-200 font-bold">tech stack</a>, or <a href="#contact" class="editorial-link text-emerald-400 font-bold">transmit a message</a>.</span>
+      </div>
+    </div>
+  </section>
 
   <!-- Technical Footer -->
   <footer class="border-t border-slate-800/80 bg-slate-950 py-12 px-4 relative z-10">

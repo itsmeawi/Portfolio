@@ -208,6 +208,61 @@ body {
   100% { transform: scale(0.95); opacity: 0.8; }
 }
 
+.pill-btn--status.is-active {
+  border-color: rgba(56, 189, 248, 0.75);
+  background: rgba(56, 189, 248, 0.14);
+  box-shadow: 0 0 14px rgba(56, 189, 248, 0.35);
+}
+
+#telemetryWaveform {
+  vertical-align: middle;
+  border-radius: 3px;
+}
+
+/* Michael Gatt Inspired: Conversational Editorial Navigation */
+.editorial-nav-box {
+  background: rgba(15, 23, 42, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 9999px;
+  padding: 0.55rem 1.35rem;
+  backdrop-filter: blur(12px);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  transition: all var(--trans-fast);
+}
+
+.editorial-nav-box:hover {
+  border-color: rgba(56, 189, 248, 0.35);
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.12);
+}
+
+.editorial-link {
+  position: relative;
+  transition: color var(--trans-fast);
+  text-decoration: none;
+}
+
+.editorial-link::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.4;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform var(--trans-fast), opacity var(--trans-fast);
+}
+
+.editorial-link:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+  opacity: 1;
+}
+
 /* Spotlight Card (Interactive Mouse Border Illumination) */
 .spotlight-card {
   position: relative;

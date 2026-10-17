@@ -18,6 +18,7 @@
   const STORAGE_KEY_URL = 'portfolio_gas_webhook_url';
   const STORAGE_KEY_HISTORY = 'portfolio_submissions_history';
   const STORAGE_KEY_DRAFT = 'portfolio_form_draft';
+  const STORAGE_KEY_AUDIO = 'portfolio_audio_enabled';
 
   // Deployed Google Apps Script Endpoint (Directly bound to user's sheet)
   const DEFAULT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyhmon-zEpPQQh2zNL34b3WEQkG6_mEalmB3dK2QMwZxJ5yAniWRCgr4te2ehB24wwwAg/exec';
@@ -71,6 +72,12 @@
   const mobileMenuBtn = document.getElementById('mobileMenuBtn');
   const mobileMenuDropdown = document.getElementById('mobileMenuDropdown');
 
+  // DOM Elements - Audio & Telemetry (Michael Gatt Enhancements)
+  const audioToggleBtn = document.getElementById('audioToggleBtn');
+  const audioStatusIcon = document.getElementById('audioStatusIcon');
+  const audioStatusText = document.getElementById('audioStatusText');
+  const telemetryWaveform = document.getElementById('telemetryWaveform');
+
   // Validation Rules
   const validators = {
     name: {
@@ -99,12 +106,169 @@
   };
 
   /**
+   * ===================================================================
+   * MICHAEL GATT INSPIRED: HAPTIC AUDIO ENGINE (WEB AUDIO API)
+   * ===================================================================
+   * Pure browser-native synthesized frequencies with zero audio assets.
+   * Starts MUTED by default to comply with browser autoplay policies.
+   */
+  class SoundEngine {
+    constructor() {
+      this.ctx = null;
+      this.enabled = localStorage.getItem(STORAGE_KEY_AUDIO) === 'true';
+    }
+
+    ensureContext() {
+      if (!this.ctx) {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (AudioCtx) {
+          this.ctx = new AudioCtx();
+        }
+      }
+      if (this.ctx && this.ctx.state === 'suspended') {
+        this.ctx.resume();
+      }
+    }
+
+    toggle() {
+      this.ensureContext();
+      this.enabled = !this.enabled;
+      localStorage.setItem(STORAGE_KEY_AUDIO, this.enabled ? 'true' : 'false');
+      this.updateUI();
+      if (this.enabled) {
+        this.playTone(660, 0.08, 'sine', 0.06);
+        setTimeout(() => this.playTone(880, 0.1, 'sine', 0.06), 80);
+      }
+      return this.enabled;
+    }
+
+    updateUI() {
+      if (!audioToggleBtn || !audioStatusIcon || !audioStatusText) return;
+      if (this.enabled) {
+        audioToggleBtn.classList.add('is-active');
+        audioStatusIcon.textContent = '🔊';
+        audioStatusText.textContent = 'SOUND: ON';
+        audioToggleBtn.title = 'Mute Haptic Soundscape';
+      } else {
+        audioToggleBtn.classList.remove('is-active');
+        audioStatusIcon.textContent = '🔇';
+        audioStatusText.textContent = 'SOUND: OFF';
+        audioToggleBtn.title = 'Enable Haptic Soundscape';
+      }
+    }
+
+    playTone(freq = 600, duration = 0.04, type = 'sine', maxGain = 0.04) {
+      if (!this.enabled) return;
+      this.ensureContext();
+      if (!this.ctx) return;
+
+      try {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+
+        gain.gain.setValueAtTime(maxGain, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.start();
+        osc.stop(this.ctx.currentTime + duration);
+      } catch (e) {
+        // Silent catch for browser security restrictions
+      }
+    }
+
+    playClick() {
+      this.playTone(720, 0.035, 'sine', 0.04);
+      triggerWaveformSurge(1.6);
+    }
+
+    playInputFocus() {
+      this.playTone(480, 0.025, 'triangle', 0.03);
+      triggerWaveformSurge(1.25);
+    }
+
+    playSuccessChord() {
+      if (!this.enabled) return;
+      triggerWaveformSurge(3.2);
+      const chord = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+      chord.forEach((freq, idx) => {
+        setTimeout(() => {
+          this.playTone(freq, 0.22, 'sine', 0.08);
+        }, idx * 75);
+      });
+    }
+
+    playError() {
+      if (!this.enabled) return;
+      triggerWaveformSurge(2.0);
+      this.playTone(220, 0.12, 'sawtooth', 0.05);
+      setTimeout(() => this.playTone(180, 0.16, 'sawtooth', 0.05), 80);
+    }
+  }
+
+  const soundEngine = new SoundEngine();
+
+  /**
+   * ===================================================================
+   * MICHAEL GATT INSPIRED: DYNAMIC TELEMETRY WAVEFORM CANVAS
+   * ===================================================================
+   * Oscillates dynamic frequency bars in the top telemetry bar that
+   * surge when the user clicks, types, or submits.
+   */
+  let waveformSurge = 1.0;
+  function triggerWaveformSurge(multiplier = 2.0) {
+    waveformSurge = Math.max(waveformSurge, multiplier);
+  }
+
+  function initTelemetryWaveform() {
+    if (!telemetryWaveform) return;
+    const ctx = telemetryWaveform.getContext('2d');
+    if (!ctx) return;
+
+    const barCount = 14;
+    const barWidth = 3;
+    const gap = 2.5;
+    let tick = 0;
+
+    function render() {
+      tick += 0.06;
+      waveformSurge = Math.max(1.0, waveformSurge * 0.96);
+
+      ctx.clearRect(0, 0, telemetryWaveform.width, telemetryWaveform.height);
+
+      const h = telemetryWaveform.height;
+
+      for (let i = 0; i < barCount; i++) {
+        const base = Math.sin(tick + i * 0.45) * 0.35 + Math.cos(tick * 0.7 + i * 0.3) * 0.35 + 0.5;
+        const barHeight = Math.min(h, Math.max(2, base * (h - 2) * (0.6 + waveformSurge * 0.4)));
+
+        const x = i * (barWidth + gap) + 2;
+        const y = (h - barHeight) / 2;
+
+        const isSurged = waveformSurge > 1.3;
+        ctx.fillStyle = isSurged ? '#7dd3fc' : '#38bdf8';
+        ctx.fillRect(x, y, barWidth, barHeight);
+      }
+
+      requestAnimationFrame(render);
+    }
+
+    requestAnimationFrame(render);
+  }
+
+  /**
    * Application Initialization
    */
   function init() {
     initGSAPAnimations();
     initSpotlightEffect();
     initMagneticButtons();
+    soundEngine.updateUI();
+    initTelemetryWaveform();
     bindEvents();
     loadDraft();
     updateLivePreview();
@@ -366,6 +530,24 @@
     // Form Reset
     resetBtn.addEventListener('click', handleReset);
 
+    // Audio Soundscape Toggle (Michael Gatt inspired)
+    if (audioToggleBtn) {
+      audioToggleBtn.addEventListener('click', () => {
+        const isNowOn = soundEngine.toggle();
+        showToast(isNowOn ? 'Soundscape enabled (Web Audio API active)' : 'Soundscape muted', 'info');
+      });
+    }
+
+    // Attach subtle acoustic feedback to all interactive buttons & links
+    document.querySelectorAll('.pill-btn, .editorial-link, .nav-links a, .mobile-nav-link').forEach((el) => {
+      el.addEventListener('click', () => soundEngine.playClick());
+    });
+
+    // Inputs acoustic feedback & waveform pulse
+    inputs.forEach((input) => {
+      input.addEventListener('focus', () => soundEngine.playInputFocus());
+    });
+
     // Settings Modal Triggers
     openSettingsBtn.addEventListener('click', openSettings);
     if (headerDbStatus) headerDbStatus.addEventListener('click', openSettings);
@@ -560,6 +742,7 @@
     e.preventDefault();
 
     if (!validateAll()) {
+      soundEngine.playError();
       showToast('Please resolve validation errors before submitting.', 'error');
       const firstError = document.querySelector('.form-group.has-error input, .form-group.has-error textarea');
       if (firstError) firstError.focus();
@@ -584,6 +767,7 @@
       onSubmissionSuccess(payload, result);
     } catch (error) {
       console.error('Submission error:', error);
+      soundEngine.playError();
       showToast('Transmission failed: ' + error.message, 'error');
     } finally {
       setLoadingState(false);
@@ -646,6 +830,7 @@
 
   function onSubmissionSuccess(payload, result) {
     triggerConfetti();
+    soundEngine.playSuccessChord();
 
     const historyItem = {
       id: result.submissionId || 'SUB-' + Date.now().toString().slice(-6),
