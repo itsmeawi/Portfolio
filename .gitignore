@@ -1,0 +1,18 @@
+# OS generated files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs and databases
+*.log
+*.sqlite
+
+# IDE configuration
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Node modules (if any tools are added)
+node_modules/
+dist/

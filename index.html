@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Portfolio Lead Intake & Contact Portal with direct Google Sheets Apps Script integration">
+  <meta name="keywords" content="Portfolio, Contact Form, Google Sheets, Google Apps Script, Lead Intake">
+  <meta name="author" content="itsmeawi">
+  <title>Portfolio Connect | Google Sheets Lead Intake Form</title>
+  
+  <!-- Modern Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- Canvas Confetti for Celebration Animation -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Ambient background glow elements -->
+  <div class="ambient-glow glow-1"></div>
+  <div class="ambient-glow glow-2"></div>
+  <div class="ambient-glow glow-3"></div>
+
+  <!-- Header / Top Bar -->
+  <header class="app-header">
+    <div class="brand">
+      <div class="brand-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+          <polyline points="10 9 9 9 8 9"></polyline>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <h1 class="brand-title">Portfolio Connect</h1>
+        <span class="brand-badge">Google Sheets Database</span>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <!-- Database Status Badge -->
+      <div class="status-indicator" id="dbStatusBadge" title="Click to view connection settings">
+        <span class="status-dot online"></span>
+        <span class="status-text" id="dbStatusText">Google Sheets Ready</span>
+      </div>
+
+      <!-- Settings / Setup Trigger Button -->
+      <button type="button" class="btn-icon" id="openSettingsBtn" title="Google Apps Script Setup & Settings" aria-label="Settings">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+      </button>
+
+      <!-- GitHub Repository Link -->
+      <a href="https://github.com/itsmeawi/Portfolio.git" target="_blank" rel="noopener noreferrer" class="btn-icon" title="View on GitHub" aria-label="GitHub Repository">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
+        </svg>
+      </a>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="main-layout">
+    <!-- Form Section -->
+    <section class="form-container">
+      <div class="card form-card">
+        <div class="card-header">
+          <div class="chip">Portfolio Contact</div>
+          <h2 class="card-title">Let's Connect</h2>
+          <p class="card-subtitle">Fill out your details below. Your information is securely logged directly into our cloud Google Sheet via Google Apps Script.</p>
+        </div>
+
+        <form id="portfolioForm" novalidate autocomplete="on">
+          <!-- Name Row (First Name & Last Name) -->
+          <div class="form-row">
+            <!-- First Name (name) -->
+            <div class="form-group" id="group-name">
+              <label for="name" class="form-label">
+                First Name <span class="required-star">*</span>
+              </label>
+              <div class="input-wrapper">
+                <span class="input-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                  </svg>
+                </span>
+                <input 
+                  type="text" 
+                  id="name" 
+                  name="name" 
+                  class="form-input" 
+                  placeholder="e.g. John" 
+                  required 
+                  minlength="2" 
+                  maxlength="50"
+                  autocomplete="given-name"
+                >
+                <span class="validation-status" id="status-name"></span>
+              </div>
+              <span class="field-error" id="error-name"></span>
+            </div>
+
+            <!-- Last Name (lastname) -->
+            <div class="form-group" id="group-lastname">
+              <label for="lastname" class="form-label">
+                Last Name <span class="required-star">*</span>
+              </label>
+              <div class="input-wrapper">
+                <span class="input-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                  </svg>
+                </span>
+                <input 
+                  type="text" 
+                  id="lastname" 
+                  name="lastname" 
+                  class="form-input" 
+                  placeholder="e.g. Doe" 
+                  required 
+                  minlength="2" 
+                  maxlength="50"
+                  autocomplete="family-name"
+                >
+                <span class="validation-status" id="status-lastname"></span>
+              </div>
+              <span class="field-error" id="error-lastname"></span>
+            </div>
+          </div>
+
+          <!-- Gmail Field -->
+          <div class="form-group" id="group-gmail">
+            <div class="label-with-helper">
+              <label for="gmail" class="form-label">
+                Gmail Address <span class="required-star">*</span>
+              </label>
+              <button type="button" class="btn-text-suggestion" id="appendGmailSuffix" title="Quick append @gmail.com">
+                + @gmail.com
+              </button>
+            </div>
+            <div class="input-wrapper">
+              <span class="input-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                  <polyline points="22,6 12,13 2,6"></polyline>
+                </svg>
+              </span>
+              <input 
+                type="email" 
+                id="gmail" 
+                name="gmail" 
+                class="form-input" 
+                placeholder="username@gmail.com" 
+                required 
+                autocomplete="email"
+              >
+              <span class="validation-status" id="status-gmail"></span>
+            </div>
+            <span class="field-error" id="error-gmail"></span>
+          </div>
+
+          <!-- Contact Field -->
+          <div class="form-group" id="group-contact">
+            <label for="contact" class="form-label">
+              Contact Number <span class="required-star">*</span>
+            </label>
+            <div class="input-wrapper">
+              <span class="input-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                </svg>
+              </span>
+              <input 
+                type="tel" 
+                id="contact" 
+                name="contact" 
+                class="form-input" 
+                placeholder="+1 (555) 000-0000 or +63 912 345 6789" 
+                required 
+                autocomplete="tel"
+              >
+              <span class="validation-status" id="status-contact"></span>
+            </div>
+            <span class="field-error" id="error-contact"></span>
+          </div>
+
+          <!-- Address Field -->
+          <div class="form-group" id="group-address">
+            <div class="label-with-helper">
+              <label for="address" class="form-label">
+                Complete Address <span class="required-star">*</span>
+              </label>
+              <span class="char-count" id="addressCharCount">0 / 250</span>
+            </div>
+            <div class="input-wrapper textarea-wrapper">
+              <span class="input-icon textarea-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                  <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+              </span>
+              <textarea 
+                id="address" 
+                name="address" 
+                class="form-input form-textarea" 
+                placeholder="Unit/Street, Barangay/Subdivision, City, State/Province, Country, Postal Code" 
+                rows="3" 
+                required 
+                maxlength="250"
+                autocomplete="street-address"
+              ></textarea>
+              <span class="validation-status" id="status-address"></span>
+            </div>
+            <span class="field-error" id="error-address"></span>
+          </div>
+
+          <!-- Form Actions -->
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary" id="submitBtn">
+              <span class="btn-content">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="22" y1="2" x2="11" y2="13"></line>
+                  <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+                <span>Submit to Google Sheet</span>
+              </span>
+              <span class="btn-spinner" aria-hidden="true"></span>
+            </button>
+
+            <button type="button" class="btn btn-secondary" id="resetBtn" title="Clear all fields">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                <path d="M3 3v5h5"></path>
+              </svg>
+              <span>Reset</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- Side Panel: Live Digital Card & Submission History -->
+    <aside class="sidebar-container">
+      <!-- Live Preview Card -->
+      <div class="card preview-card">
+        <div class="preview-header">
+          <div class="preview-tag">
+            <span class="pulse-dot"></span> Live Data Preview
+          </div>
+          <span class="card-chip-type">Google Sheet Row</span>
+        </div>
+
+        <div class="digital-badge">
+          <div class="badge-avatar" id="previewAvatar">ID</div>
+          <div class="badge-identity">
+            <h3 class="badge-name" id="previewFullName">Your Name Here</h3>
+            <span class="badge-role" id="previewRole">Prospective Contact / Client</span>
+          </div>
+        </div>
+
+        <div class="preview-details">
+          <div class="preview-item">
+            <span class="preview-label">Gmail</span>
+            <span class="preview-value" id="previewGmail">not provided</span>
+          </div>
+          <div class="preview-item">
+            <span class="preview-label">Contact</span>
+            <span class="preview-value" id="previewContact">not provided</span>
+          </div>
+          <div class="preview-item">
+            <span class="preview-label">Address</span>
+            <span class="preview-value" id="previewAddress">not provided</span>
+          </div>
+        </div>
+
+        <div class="preview-footer">
+          <div class="sync-status">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            <span>Real-time Form Mirroring</span>
+          </div>
+          <span class="preview-time" id="previewClock">00:00:00</span>
+        </div>
+      </div>
+
+      <!-- Quick Setup Banner / Sheet Link -->
+      <div class="card quick-help-card">
+        <div class="help-header">
+          <div class="help-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+          </div>
+          <div>
+            <h4 class="help-title">Google Apps Script Connected?</h4>
+            <p class="help-desc">Need to connect your own Google Sheet or test submissions?</p>
+          </div>
+        </div>
+        <div class="help-actions">
+          <button type="button" class="btn btn-outline" id="viewGuideBtn">
+            View Setup Guide & Code.gs
+          </button>
+        </div>
+      </div>
+
+      <!-- Recent Submissions History (Stored Locally in Session) -->
+      <div class="card history-card" id="historyCard">
+        <div class="history-header">
+          <h4 class="history-title">Recent Submissions (<span id="submissionCount">0</span>)</h4>
+          <button type="button" class="btn-link" id="clearHistoryBtn" title="Clear history">Clear</button>
+        </div>
+        <div class="history-list" id="historyList">
+          <div class="history-empty">No submissions logged yet. Try submitting the form!</div>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <!-- Settings & Google Apps Script Setup Modal -->
+  <div class="modal-overlay" id="settingsModal" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="brand-icon modal-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+            </svg>
+          </div>
+          <div>
+            <h3 class="modal-title">Google Sheets & Apps Script Setup</h3>
+            <p class="modal-subtitle">Connect this form to your Google Sheet backend</p>
+          </div>
+        </div>
+        <button type="button" class="modal-close" id="closeSettingsBtn" aria-label="Close Modal">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Apps Script Web App URL input -->
+        <div class="settings-box">
+          <label for="scriptUrlInput" class="form-label">
+            Google Apps Script Web App URL
+          </label>
+          <div class="input-wrapper">
+            <input 
+              type="url" 
+              id="scriptUrlInput" 
+              class="form-input" 
+              placeholder="https://script.google.com/macros/s/.../exec"
+            >
+          </div>
+          <p class="input-hint">Your deployed Google Apps Script Web App URL ending with <code>/exec</code>.</p>
+          
+          <div class="settings-actions">
+            <button type="button" class="btn btn-primary" id="saveScriptUrlBtn">
+              Save Webhook URL
+            </button>
+            <button type="button" class="btn btn-outline" id="testScriptUrlBtn">
+              Test Connection
+            </button>
+            <button type="button" class="btn btn-ghost" id="resetDefaultUrlBtn">
+              Reset
+            </button>
+          </div>
+          <div class="test-result-box" id="testResultBox" style="display: none;"></div>
+        </div>
+
+        <!-- 3-Step Setup Guide Accordion -->
+        <div class="guide-steps">
+          <h4 class="guide-heading">How to set up in 3 minutes:</h4>
+          
+          <div class="step-card">
+            <div class="step-badge">Step 1</div>
+            <div class="step-content">
+              <strong>Create Google Sheet & Open Apps Script:</strong>
+              <p>Go to <a href="https://sheets.new" target="_blank" rel="noopener">sheets.new</a>, then in the top menu click <strong>Extensions &gt; Apps Script</strong>.</p>
+            </div>
+          </div>
+
+          <div class="step-card">
+            <div class="step-badge">Step 2</div>
+            <div class="step-content">
+              <strong>Paste Backend Code (<code>Code.gs</code>):</strong>
+              <p>Replace existing code in Apps Script with the contents of <code>Code.gs</code> from this repository.</p>
+              <button type="button" class="btn btn-xs btn-outline" id="copyCodeGsBtn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+                Copy Code.gs to Clipboard
+              </button>
+            </div>
+          </div>
+
+          <div class="step-card">
+            <div class="step-badge">Step 3</div>
+            <div class="step-content">
+              <strong>Deploy as Web App:</strong>
+              <p>Click <strong>Deploy &gt; New deployment &gt; Web app</strong>.</p>
+              <ul>
+                <li>Execute as: <strong>Me</strong></li>
+                <li>Who has access: <strong>Anyone</strong> (CRITICAL)</li>
+              </ul>
+              <p>Authorize permissions, copy the Web App URL (ends in <code>/exec</code>), and paste it above!</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success Modal -->
+  <div class="modal-overlay" id="successModal" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="modal-card modal-card-sm text-center">
+      <div class="success-icon-wrapper">
+        <svg class="success-checkmark" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+          <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        </svg>
+      </div>
+
+      <h3 class="modal-title">Submission Successful!</h3>
+      <p class="modal-subtitle" id="successModalSubtitle">Your contact details have been dispatched and recorded in the Google Sheet.</p>
+
+      <div class="receipt-box" id="successReceiptBox">
+        <!-- Injected via JS -->
+      </div>
+
+      <div class="modal-actions-centered">
+        <button type="button" class="btn btn-primary" id="closeSuccessBtn">
+          Awesome, Done!
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+  <!-- Application Logic -->
+  <script src="app.js"></script>
+</body>
+</html>
