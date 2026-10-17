@@ -38,10 +38,9 @@ The form captures and validates the following fields:
 
 Follow these 3 easy steps to connect your form to your own Google Sheet:
 
-### Step 1: Create a Google Sheet
-1. Open [sheets.new](https://sheets.new) in your browser.
-2. Name the spreadsheet (e.g. `Portfolio Contact Leads`).
-3. In the top menu, navigate to: **Extensions** > **Apps Script**.
+### Step 1: Open Your Google Sheet
+1. Open your configured sheet: [Google Sheet (Portfolio Leads)](https://docs.google.com/spreadsheets/d/1ZBKFAWajAClVhBj17anFys4ACJGHy9NJBof75dew_iQ/edit).
+2. In the top menu, navigate to: **Extensions** > **Apps Script**.
 
 ### Step 2: Paste `Code.gs`
 1. In the Apps Script code editor, delete any existing placeholder code.

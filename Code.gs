@@ -4,6 +4,9 @@
  * ===================================================================
  * Repository: https://github.com/itsmeawi/Portfolio.git
  * 
+ * Spreadsheet URL: https://docs.google.com/spreadsheets/d/1ZBKFAWajAClVhBj17anFys4ACJGHy9NJBof75dew_iQ/edit
+ * Spreadsheet ID: 1ZBKFAWajAClVhBj17anFys4ACJGHy9NJBof75dew_iQ
+ * 
  * Fields Handled:
  * 1. Timestamp (Auto-generated)
  * 2. Name (First Name)
@@ -12,26 +15,26 @@
  * 5. Contact (Phone / Contact number)
  * 6. Address (Full Address)
  *
- * HOW TO DEPLOY:
- * 1. Open Google Sheets (https://sheets.new)
- * 2. Name your spreadsheet (e.g., "Portfolio Contact Leads")
- * 3. In the top menu, go to: Extensions > Apps Script
- * 4. Delete any code in the editor and paste this entire file (Code.gs)
- * 5. Click "Save" (Disk icon or Ctrl+S)
- * 6. Click the blue "Deploy" button (top right) > "New deployment"
- * 7. Click the gear icon next to "Select type" > choose "Web app"
- * 8. Set the following options:
+ * HOW TO DEPLOY TO YOUR SPREADSHEET:
+ * 1. Open your Google Sheet: https://docs.google.com/spreadsheets/d/1ZBKFAWajAClVhBj17anFys4ACJGHy9NJBof75dew_iQ/edit
+ * 2. In the top menu, click: Extensions > Apps Script
+ * 3. Delete any code in the editor and paste this entire file (Code.gs)
+ * 4. Click "Save" (Disk icon or Ctrl+S)
+ * 5. Click the blue "Deploy" button (top right) > "New deployment"
+ * 6. Click the gear icon next to "Select type" > choose "Web app"
+ * 7. Set the following options:
  *    - Description: "Portfolio Form API v1"
  *    - Execute as: "Me (your email)"
- *    - Who has access: "Anyone" (CRITICAL: Must be "Anyone" so submissions can post without login)
- * 9. Click "Deploy"
- * 10. Grant permissions if prompted (Click Advanced > Go to [project name] (unsafe) > Allow)
- * 11. Copy the "Web app URL" (ends in `/exec`)
- * 12. Paste the URL into the settings in your Portfolio Form webpage!
+ *    - Who has access: "Anyone" (CRITICAL: Must be "Anyone" so visitors can submit without login)
+ * 8. Click "Deploy"
+ * 9. Grant permissions if prompted (Click Advanced > Go to [project name] (unsafe) > Allow)
+ * 10. Copy the "Web app URL" (ends in `/exec`)
+ * 11. Paste that Web app URL into your portfolio settings or app.js!
  * ===================================================================
  */
 
 // Configuration
+var SPREADSHEET_ID = "1ZBKFAWajAClVhBj17anFys4ACJGHy9NJBof75dew_iQ";
 var SHEET_NAME = "Submissions";
 var SEND_EMAIL_NOTIFICATION = false; // Set to true if you want an email alert on new submission
 var NOTIFICATION_EMAIL = ""; // Put your email here if SEND_EMAIL_NOTIFICATION is true
@@ -71,6 +74,9 @@ function doPost(e) {
 
   try {
     var ss = SpreadsheetApp.getActiveSpreadsheet();
+    if (!ss) {
+      ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    }
     var sheet = ss.getSheetByName(SHEET_NAME);
     
     // If the sheet doesn't exist, create it or use the active one
